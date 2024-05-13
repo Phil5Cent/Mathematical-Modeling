@@ -1,26 +1,12 @@
-#Features:
-#Genetic Algorithm every number of timesteps and upon a split, country does not need to die.
-#Probability Distribution of behaviors, ex: 0.4 aggressive, 0.4 defensive, 0.2 passive, 0 colonizing
-#Associated actions: attack (prioritizes enemies? prioritizes weak? gradual process?), Defensive: Don't engage, but attack those who attacked allies? 
-#Limited resources to be fought over.
-#Increase chance of splitting depending on resources
-#Cohesion? or morale of the nations? -> constant attacking reduces morale, increasing chance of nation split?, alliances reduce morale (or maybe contribute to the max size penalty?
-#Alliances?
+#Below are the funamental data structures and functions making up the simulation.
+#If you close each function and class and scroll down to a large block of hashes (#) near the bottom, 
+#you will see the function calls actually starting everything. It is near line 690.
 
-
-
-
-#Things that should be strongly considered to implement
-#Possibility of Predator missing (energy cost for missing, makes hunting less cheat codey)
-#Prey has age limit to reproduce???
-#
-#What's gonna stop predator from eating all the resources?
-
-#There should be an energy drain like in real life, not infinite energy generation?
 import random
 import matplotlib.pyplot as plt
 import string
 
+#Main class representing each nation
 class Node:
 
     Max_age = 50
@@ -471,7 +457,7 @@ class Node:
         return
 
 
-
+#Represents factions of each nation
 class Faction:
 
     verbose=False
@@ -530,42 +516,13 @@ class Faction:
         else:
             return False
 
-    # def unanimous_vote(self, behaviors):
-        
-    #     for member in self.members:
-    #         if member.behavior_decision() not in behaviors:
-    #             print("Unanimous vote failed")
-    #             return False
-    #     return True
 
 
-
-
-#updated issues:
-"""
-
-
-Currently, vibing and healing will gain troops faster than attacking can remove troops. There should be a militarization bonus if defending or attacking?
-
-Every so many iterations a random node joins, which might be a better representation and normalizer?
-"""
-
-
-
-
-#ida = 0
 Nodes = []
-Factions = [] #Faction as dicionary with: members, target factions
-
-# Nodes.append(Node(name = "Stoner1  ", behavior = {"Aggressive": 0.01, "Defensive": 0.39, "Passive": 0.6}, resources=70)) #Mostly Passive
-# Nodes.append(Node(name = "Stoner2  ", behavior = {"Aggressive": 0.01, "Defensive": 0.3, "Passive": 0.69}, resources=20)) #Mostly Passive
-# Nodes.append(Node(name = "Stoner3  ", behavior = {"Aggressive": 0.01, "Defensive": 0.3, "Passive": 0.69}, resources=50)) #Mostly Passive
-
-# Nodes.append(Node(name = "Switkes", behavior = {"Aggressive": 0, "Defensive": 0.7, "Passive": 0.3}))
-# Nodes.append(Node(name = "Philip", behavior = {"Aggressive": 1, "Defensive": 0.0, "Passive": 0.0}))
+Factions = [] 
 
 
-
+#All starting nations are added here
 Nodes.append(Node(name = "Wallnut  ", behavior = {"Aggressive": 0.1, "Defensive": 0.7, "Passive": 0.2})) #Mostly Defensive
 Nodes.append(Node(name = "Flower  ", behavior = {"Aggressive": 0.7, "Defensive": 0.2, "Passive": 0.1}))#, resources=100)) #Mostly Aggressive
 Nodes.append(Node(name = "Stoner  ", behavior = {"Aggressive": 0.1, "Defensive": 0.3, "Passive": 0.6})) #Mostly Passive
@@ -578,12 +535,8 @@ Nodes.append(Node(name = "Buddy  ", behavior = {"Aggressive": 0.3, "Defensive": 
 Nodes.append(Node(name = "Mister  ", behavior = {"Aggressive": 0.4, "Defensive": 0.3, "Passive": 0.3})) #Balanced Aggressive
 
 
-# print(Nodes[0].behavior)
-# print(Nodes[0].mutate_behavior(degree=0.05))
-# print("nope")
 
-
-
+#Stores information for data logging and plotting
 def update_agent_history(iter, dead_node=None):
 
         #This handles nodes not being skipped bc they were removed before the end of iteration count
@@ -608,6 +561,7 @@ def update_agent_history(iter, dead_node=None):
                 Agent_history[agent.name]["faction"].append(agent.faction.name)
                 Agent_history[agent.name]["last_action"].append(agent.last_action)
 
+#Makes nations act
 def agents_play():
 
     random.shuffle(Nodes) #Makes order of actions random each time
@@ -623,7 +577,7 @@ Agent_history = {}
 Last_iteration=0
 
 
-
+#Runs the simulation
 def run_it(steps=100, verbose=True):
 
     update_agent_history(iter=0)
@@ -652,7 +606,7 @@ def run_it(steps=100, verbose=True):
         
 
 
-
+#plots agent information
 def agent_plot(steps, factor = "energy", average=True, net=True, cutoff=0, duration_min=0):
 #    x = range(0,len(Population_Tracker))
 
@@ -726,45 +680,25 @@ def agent_plot(steps, factor = "energy", average=True, net=True, cutoff=0, durat
     #plt.show()
     #print(lines)
 
-# Agent_history[agent.name]["iteration"].append(iter)
-# Agent_history[agent.name]["resources"].append(agent.resources)
-# Agent_history[agent.name]["energy"].append(agent.energy)
-# Agent_history[agent.name]["faction"].append(agent.faction.name)
-# Agent_history[agent.name]["last_action"].append(agent.last_action)
-
-
-
-
-#SAVING DATA
 
 
  
-
-
-"""
-Observations:
-
-The default aggression numbers are REALLY HIGH
-
-Even with crazy aggression, stability eventually emerges
-
-Two types of behaviors emerge: 
-
-1.) One dominant faction with repeated rebellions and new rule
-
-2.) Multiple stable factions that adapt to no longer be aggressive
-
-"""
-
-
-#calling data viewing functions
+######################################################################################################
+#############         THIS IS WHERE THE MAIN SIMULATION VARIABLES CAN BE TWEAKED         #############
+######################################################################################################
 
 
 steps = 100000
 run_it(steps=steps, verbose=False)
-agent_plot(factor="energy", steps=steps, average=False, net=False, duration_min=steps/1000)#0)#steps/40)#0
+agent_plot(factor="energy", steps=steps, average=False, net=False, duration_min=steps/1000)
+
+#Do not turn the average on because it is broken rn :)
 
 
+
+
+
+#Writing results to files
 
 with open('Results.txt', 'a') as file:
     for i, agent in enumerate(Nodes):
@@ -790,6 +724,7 @@ with open('Agent_Run.txt', 'w') as file:
 
 print('done')
 
+#Writes information to a temporary file for statistics
 # with open('Temp.txt', 'a') as file:
 #     writing_data="("
 #     for i, agent in enumerate(Nodes):
